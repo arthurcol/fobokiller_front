@@ -5,7 +5,7 @@ import streamlit as st
 import altair as alt
 import folium
 from branca.colormap import linear, LinearColormap
-from geopy.geocoders import Nominatim
+#from geopy.geocoders import Nominatim
 import requests
 import time
 import os
@@ -36,7 +36,7 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api2-2rnijzpfva-uc.a.run.app/details/'
+url_api = 'https://api3-2rnijzpfva-ew.a.run.app/detail?'
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
@@ -76,7 +76,6 @@ if st.button('Surprise me!'):
         #request api
         params={'alias':'le-comptoir-de-la-gastronomie-paris'}
         resultat = pd.DataFrame(requests.get(url_api,params=params).json())
-
         for i in range(len(resultat)):
             folium.Marker(location=[resultat['latitude'][i], resultat['longitude'][i]],
                         icon=folium.Icon(color="blue", icon='mapmarker',
