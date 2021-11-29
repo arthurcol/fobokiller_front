@@ -34,4 +34,4 @@ folium
 branca
 geopy
 streamlit
-geocoder
+streamlit_folium
