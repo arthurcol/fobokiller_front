@@ -59,7 +59,7 @@ with expander:
     price_symbol  = filters[2].multiselect('Price range',['€','€€','€€€','€€€€'])
 
 st.write('### How _FOBOic_ are you ?')
-nb = st.slider('', 1, 20)
+nb = st.slider('', 2, 20)
 foboic = st.columns(9)
 foboic[0].write('BIG TIME')
 foboic[4].write('Taking my pills...')
@@ -70,7 +70,8 @@ if st.button('Surprise me!'):
         st.success('Bon appetit!')
 
         #init map
-        m = folium.Map(location=[48.86489231778049, 2.3799136342856975], zoom_start=12)
+        m = folium.Map(location=[48.85584630805084, 2.3452032500919433],
+                       zoom_start=12)
 
         #get lat and long of restaurants
         #request api
@@ -88,14 +89,17 @@ if st.button('Surprise me!'):
         details_df.set_index('alias', inplace=True)
         result_df = details_df.join(result_reviews_df)
         for alias in result_df.index:
-            folium.Marker(location=[result_df['latitude'][alias], result_df['longitude'][alias]],
-                        icon=folium.Icon(color="blue", icon='mapmarker',
-                                        angle=30),
-                popup=folium.Popup(max_width='50%',
-                                   html=f"""
+            folium.Marker(location=[
+                result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                          icon=folium.Icon(color="blue",
+                                           icon='mapmarker',
+                                           angle=30),
+                          popup=folium.Popup(max_width='50%',
+                                             html=f"""
                                     <body>
                                     <div id="title">
-                                        <h3>{resultat['name'][0]}</h3>
+                                        <h3>{result_df['name'][alias]}</h3>
                                     </div>
 
                                     <div id="col">
@@ -103,12 +107,12 @@ if st.button('Surprise me!'):
                                         "color:#191970;
                                         font-size: 20px;
                                         border-right:0px;
-                                        ">{resultat['rating'][0]}/5</p>
+                                        ">{result_df['rating'][alias]}/5</p>
                                         <p
                                         style="
                                         font-size:15px;
                                         border-left:0px;
-                                        "> Address:</br> {resultat['address'][0]}.</p>
+                                        "> Address:</br> {result_df['address'][alias]}.</p>
                                     </div>
                                     </body>
                                     """ + """
