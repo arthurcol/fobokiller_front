@@ -35,8 +35,8 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api4-2rnijzpfva-ew.a.run.app/detail?'
-
+url_details_base = 'https://api4-2rnijzpfva-ew.a.run.app/details/?alias='
+url_api = 'https://api4-2rnijzpfva-ew.a.run.app/summary_reviews?'
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
@@ -74,13 +74,23 @@ if st.button('Surprise me!'):
 
         #get lat and long of restaurants
         #request api
+        params={'text':query_food,
+                'n_best':nb,
+                'min_review':10}
+        result_reviews = requests.get(url_api, params=params).json()
+        result_reviews_df = pd.DataFrame(result_reviews)
 
-        params={'alias':'le-comptoir-de-la-gastronomie-paris'}
-        resultat = pd.DataFrame(requests.get(url_api,params=params).json())
-        for i in range(len(resultat)):
-            folium.Marker(
-                location=[resultat['latitude'][i], resultat['longitude'][i]],
-                icon=folium.Icon(color="blue", icon='mapmarker', angle=30),
+
+        aliases = list(result_reviews_df['reviews'].keys())
+        url_details=url_details_base+'&alias='.join(aliases)
+        details = requests.get(url_details + '&alias='.join(aliases)).json()
+        details_df = pd.DataFrame(details)
+        details_df.set_index('alias', inplace=True)
+        result_df = details_df.join(result_reviews_df)
+        for alias in result_df.index:
+            folium.Marker(location=[result_df['latitude'][alias], result_df['longitude'][alias]],
+                        icon=folium.Icon(color="blue", icon='mapmarker',
+                                        angle=30),
                 popup=folium.Popup(max_width='50%',
                                    html=f"""
                                     <body>

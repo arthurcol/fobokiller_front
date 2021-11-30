@@ -12,7 +12,7 @@ import folium
 from streamlit_folium import folium_static
 import streamlit.components.v1 as components
 #importing csv file
-path = os.path.join('fobokiller_front/data/final_resto_list.csv')
+path = os.path.join('data/final_resto_list.csv')
 df = pd.read_csv(path, index_col=0)
 
 
@@ -40,7 +40,8 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api4-2rnijzpfva-ew.a.run.app/detail?'
+url_details_base = 'https://api4-2rnijzpfva-ew.a.run.app/details/?alias='
+url_api = 'https://api4-2rnijzpfva-ew.a.run.app/summary_reviews?'
 
 st.set_page_config(
     page_title="FOBO Kiler",  # => Quick reference - Streamlit
@@ -52,8 +53,7 @@ st.title('FOBO Killer !')
 
 query_food = st.text_input( 'What do you want to eat today ? 😋',
     value='Miam')
-fix = """<p>I want to</p> """
-query_location = st.text_input(fix+'Where are you ? 🧐')
+query_location = st.text_input('Where are you ? 🧐')
 
 expander = st.expander('Optional filters')
 
@@ -84,17 +84,30 @@ if st.button('Surprise me!'):
 
         #get lat and long of restaurants
         #request api
-        params = {'alias': 'le-comptoir-de-la-gastronomie-paris'}
-        resultat = pd.DataFrame(requests.get(url_api, params=params).json())
-        for i in range(len(resultat)):
-            folium.Marker(
-                location=[resultat['latitude'][i], resultat['longitude'][i]],
-                icon=folium.Icon(color="blue", icon='mapmarker', angle=0),
-                popup=folium.Popup(max_width='50%',
-                                   html=f"""
+        params = {'text': query_food, 'n_best': nb, 'min_review': 10}
+        result_reviews = requests.get(url_api, params=params).json()
+        result_reviews_df = pd.DataFrame(result_reviews)
+
+        aliases = list(result_reviews_df['reviews'].keys())
+        url_details = url_details_base + '&alias='.join(aliases)
+        details = requests.get(url_details + '&alias='.join(aliases)).json()
+        details_df = pd.DataFrame(details)
+        details_df.set_index('alias', inplace=True)
+        result_df = details_df.join(result_reviews_df)
+        st.write(result_df)
+        for alias in result_df.index:
+            st.write(alias)
+            folium.Marker(location=[
+                result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                          icon=folium.Icon(color="blue",
+                                           icon='mapmarker',
+                                           angle=30),
+                          popup=folium.Popup(max_width='50%',
+                                             html=f"""
                                     <body>
                                     <div id="title">
-                                        <h3>{resultat['name'][0]}</h3>
+                                        <h3>{result_df['name'][alias]}</h3>
                                     </div>
 
                                     <div id="col">
@@ -102,12 +115,12 @@ if st.button('Surprise me!'):
                                         "color:#191970;
                                         font-size: 20px;
                                         border-right:0px;
-                                        ">{resultat['rating'][0]}/5</p>
+                                        ">{result_df['rating'][alias]}/5</p>
                                         <p
                                         style="
                                         font-size:15px;
                                         border-left:0px;
-                                        "> Address:</br> {resultat['address'][0]}.</p>
+                                        "> Address:</br> {result_df['address'][alias]}.</p>
                                     </div>
                                     </body>
                                     """ + """
