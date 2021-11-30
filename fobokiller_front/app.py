@@ -36,7 +36,8 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api3-2rnijzpfva-ew.a.run.app/detail?'
+url_api = 'https://api3-2rnijzpfva-ew.a.run.app/summary_reviews?'
+url_details_base='https://api3-2rnijzpfva-ew.a.run.app/details?alias='
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
@@ -59,11 +60,11 @@ with expander:
     price_symbol  = filters[2].multiselect('Price range',['€','€€','€€€','€€€€'])
 
 st.write('### How _FOBOic_ are you ?')
-foboic = st.columns(3)
+nb = st.slider('', 1, 20)
+foboic = st.columns(9)
 foboic[0].write('BIG TIME')
-foboic[1].write('Taking my pills...')
-foboic[2].write('I\'m ok !')
-nb = st.slider('',1,20)
+foboic[4].write('Taking my pills...')
+foboic[8].write('I\'m ok !')
 
 if st.button('Surprise me!'):
     with st.spinner(text='Looking for the best restaurant for you...'):
@@ -74,10 +75,21 @@ if st.button('Surprise me!'):
 
         #get lat and long of restaurants
         #request api
-        params={'alias':'le-comptoir-de-la-gastronomie-paris'}
-        resultat = pd.DataFrame(requests.get(url_api,params=params).json())
-        for i in range(len(resultat)):
-            folium.Marker(location=[resultat['latitude'][i], resultat['longitude'][i]],
+        params={'text':query_food,
+                'n_best':nb,
+                'min_review':10}
+        result_reviews = requests.get(url_api, params=params).json()
+        result_reviews_df = pd.DataFrame(result_reviews)
+
+
+        aliases = list(result_reviews_df['reviews'].keys())
+        url_details=url_details_base+'&alias='.join(aliases)
+        details = requests.get(url_details + '&alias='.join(aliases)).json()
+        details_df = pd.DataFrame(details)
+        details_df.set_index('alias', inplace=True)
+        result_df = details_df.join(result_reviews_df)
+        for alias in result_df.index:
+            folium.Marker(location=[result_df['latitude'][alias], result_df['longitude'][alias]],
                         icon=folium.Icon(color="blue", icon='mapmarker',
                                         angle=30)).add_to(m)
 
@@ -87,3 +99,7 @@ if st.button('Surprise me!'):
 
         #display map
         folium_static(m)
+
+
+        st.table(result_df['nb_sentences', 'nb_review',
+                           'metric sim_ratio','sentences_pond','metric_pond'])
