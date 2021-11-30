@@ -26,10 +26,10 @@ st.markdown("""
         justify-content: space-evenly;
     }
     .logo-text {
-        font-weight:700 !important;
-        font-size:30px !important;
-        color: #f9a49b !important;
-        padding: 35px !important;
+        font-weight:700;
+        font-size:30px;
+        color: #f9a49b;
+        padding: 35px;
     }
     .logo-img {
         float:right;
@@ -80,10 +80,10 @@ st.markdown("""
         justify-content: space-evenly;
     }
     .logo-text {
-        font-weight:700 !important;
-        font-size:18px !important;
-        color: #f9a49b !important;
-        padding: 35px !important;
+        font-weight:700;
+        font-size:18px;
+        color: #f9a49b;
+        padding: 35px;
     }
     .logo-img {
         float:right;

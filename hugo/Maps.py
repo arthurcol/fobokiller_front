@@ -1,20 +1,21 @@
 import pandas as pd
-import numpy as np
 import base64
 import streamlit as st
 import altair as alt
 import folium
 from branca.colormap import linear, LinearColormap
-#from geopy.geocoders import Nominatim
 import requests
 import time
 import os
+from branca.element import IFrame
 import folium
 from streamlit_folium import folium_static
-
+import streamlit.components.v1 as components
 #importing csv file
-path = os.path.join(os.path.dirname(__file__), 'data/final_resto_list.csv')
+path = os.path.join('fobokiller_front/data/final_resto_list.csv')
 df = pd.read_csv(path, index_col=0)
+
+
 
 #creating unique categories list
 liste_cat = list(df['categories'].str.split(', ', expand=False))
@@ -33,13 +34,13 @@ def selector(k):
         return 'nd'
     if k == 3 | k == 13:
         return 'rd'
-    return 'st'
+    return 'th'
 
 
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api3-2rnijzpfva-ew.a.run.app/detail?'
+url_api = 'https://api4-2rnijzpfva-ew.a.run.app/detail?'
 
 st.set_page_config(
     page_title="FOBO Kiler",  # => Quick reference - Streamlit
@@ -49,11 +50,10 @@ st.set_page_config(
 
 st.title('FOBO Killer !')
 
-query_food = st.text_input(
-    'What do you want to eat today ? 😋',
-    value='Miam',
-)
-query_location = st.text_input('Where are you ? 🧐')
+query_food = st.text_input( 'What do you want to eat today ? 😋',
+    value='Miam')
+fix = """<p>I want to</p> """
+query_location = st.text_input(fix+'Where are you ? 🧐')
 
 expander = st.expander('Optional filters')
 
@@ -67,11 +67,12 @@ with expander:
                                           ['€', '€€', '€€€', '€€€€'])
 
 st.write('### How _FOBOic_ are you ?')
-foboic = st.columns(3)
-foboic[0].write('BIG TIME')
-foboic[1].write('Taking my pills...')
-foboic[2].write('I\'m ok !')
 nb = st.slider('', 1, 20)
+foboic = st.columns(9)
+foboic[0].write('BIG TIME')
+foboic[4].write('Taking my pills...')
+foboic[8].write('I\'m ok !')
+
 
 if st.button('Surprise me!'):
     with st.spinner(text='Looking for the best restaurant for you...'):
@@ -88,12 +89,46 @@ if st.button('Surprise me!'):
         for i in range(len(resultat)):
             folium.Marker(
                 location=[resultat['latitude'][i], resultat['longitude'][i]],
-                icon=folium.Icon(color="blue", icon='mapmarker',
-                                 angle=30)).add_to(m)
+                icon=folium.Icon(color="blue", icon='mapmarker', angle=0),
+                popup=folium.Popup(max_width='50%',
+                                   html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{resultat['name'][0]}</h3>
+                                    </div>
 
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        ">{resultat['rating'][0]}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+                                        "> Address:</br> {resultat['address'][0]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+
+                                    }
+
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
         #localisation où suis-je ?
         folium.Marker(location=[48.86489231778049, 2.3799136342856975],
                       icon=folium.Icon(color="red", icon='user')).add_to(m)
+
+
+        #pop up
+
+
 
         #display map
         folium_static(m)
