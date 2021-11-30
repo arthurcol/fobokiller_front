@@ -5,7 +5,6 @@ import streamlit as st
 import altair as alt
 import folium
 from branca.colormap import linear, LinearColormap
-#from geopy.geocoders import Nominatim
 import requests
 import time
 import os
@@ -77,9 +76,38 @@ if st.button('Surprise me!'):
         params={'alias':'le-comptoir-de-la-gastronomie-paris'}
         resultat = pd.DataFrame(requests.get(url_api,params=params).json())
         for i in range(len(resultat)):
-            folium.Marker(location=[resultat['latitude'][i], resultat['longitude'][i]],
-                        icon=folium.Icon(color="blue", icon='mapmarker',
-                                        angle=30)).add_to(m)
+            folium.Marker(
+                location=[resultat['latitude'][i], resultat['longitude'][i]],
+                icon=folium.Icon(color="blue", icon='mapmarker', angle=30),
+                popup=folium.Popup(max_width='50%',
+                                   html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{resultat['name'][0]}</h3>
+                                    </div>
+
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        ">{resultat['rating'][0]}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+                                        "> Address:</br> {resultat['address'][0]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+                                        }
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
 
         #localisation où suis-je ?
         folium.Marker(location=[48.86489231778049, 2.3799136342856975],
