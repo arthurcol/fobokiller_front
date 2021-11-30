@@ -37,6 +37,7 @@ arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 #URL API
 url_api = 'https://api4-2rnijzpfva-ew.a.run.app/detail?'
 
+
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
         page_icon="🍖",
@@ -58,11 +59,11 @@ with expander:
     price_symbol  = filters[2].multiselect('Price range',['€','€€','€€€','€€€€'])
 
 st.write('### How _FOBOic_ are you ?')
-foboic = st.columns(3)
+nb = st.slider('', 1, 20)
+foboic = st.columns(9)
 foboic[0].write('BIG TIME')
-foboic[1].write('Taking my pills...')
-foboic[2].write('I\'m ok !')
-nb = st.slider('',1,20)
+foboic[4].write('Taking my pills...')
+foboic[8].write('I\'m ok !')
 
 if st.button('Surprise me!'):
     with st.spinner(text='Looking for the best restaurant for you...'):
@@ -73,6 +74,7 @@ if st.button('Surprise me!'):
 
         #get lat and long of restaurants
         #request api
+
         params={'alias':'le-comptoir-de-la-gastronomie-paris'}
         resultat = pd.DataFrame(requests.get(url_api,params=params).json())
         for i in range(len(resultat)):
@@ -115,3 +117,7 @@ if st.button('Surprise me!'):
 
         #display map
         folium_static(m)
+
+
+        st.table(result_df[['nb_sentences', 'nb_review',
+                           'metric sim_ratio','sentences_pond','metric_pond']])
