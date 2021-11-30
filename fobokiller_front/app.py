@@ -35,7 +35,7 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_api = 'https://api3-2rnijzpfva-ew.a.run.app/detail?'
+url_api = 'https://api4-2rnijzpfva-ew.a.run.app/detail?'
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
