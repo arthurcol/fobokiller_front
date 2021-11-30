@@ -101,5 +101,5 @@ if st.button('Surprise me!'):
         folium_static(m)
 
 
-        st.table(result_df['nb_sentences', 'nb_review',
-                           'metric sim_ratio','sentences_pond','metric_pond'])
+        st.table(result_df[['nb_sentences', 'nb_review',
+                           'metric sim_ratio','sentences_pond','metric_pond']])
