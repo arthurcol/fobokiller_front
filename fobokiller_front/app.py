@@ -35,8 +35,8 @@ def selector(k):
 arrondissements = {str(k) + selector(k): 75000 + k for k in range(1, 21)}
 
 #URL API
-url_details_base = 'https://api4-2rnijzpfva-ew.a.run.app/details/?alias='
-url_api = 'https://api4-2rnijzpfva-ew.a.run.app/summary_reviews?'
+url_details_base = 'https://api6-2rnijzpfva-ew.a.run.app/details?alias='
+url_api = 'https://api6-2rnijzpfva-ew.a.run.app/summary_reviews?'
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
@@ -59,11 +59,11 @@ with expander:
     price_symbol  = filters[2].multiselect('Price range',['€','€€','€€€','€€€€'])
 
 st.write('### How _FOBOic_ are you ?')
-nb = st.slider('', 2, 20)
-foboic = st.columns(9)
+nb = st.slider('', 2, 10)
+foboic = st.columns(11)
 foboic[0].write('BIG TIME')
-foboic[4].write('Taking my pills...')
-foboic[8].write('I\'m ok !')
+foboic[5].write('Taking my pills...')
+foboic[10].write('I\'m ok !')
 
 if st.button('Surprise me!'):
     with st.spinner(text='Looking for the best restaurant for you...'):
@@ -80,8 +80,6 @@ if st.button('Surprise me!'):
                 'min_review':10}
         result_reviews = requests.get(url_api, params=params).json()
         result_reviews_df = pd.DataFrame(result_reviews)
-
-
         aliases = list(result_reviews_df['reviews'].keys())
         url_details=url_details_base+'&alias='.join(aliases)
         details = requests.get(url_details + '&alias='.join(aliases)).json()
@@ -90,13 +88,9 @@ if st.button('Surprise me!'):
         result_df = details_df.join(result_reviews_df)
         for alias in result_df.index:
             folium.Marker(location=[
-                result_df['latitude'][alias], result_df['longitude'][alias]
-            ],
-                          icon=folium.Icon(color="blue",
-                                           icon='mapmarker',
-                                           angle=30),
-                          popup=folium.Popup(max_width='50%',
-                                             html=f"""
+                result_df['latitude'][alias], result_df['longitude'][alias]],
+                          icon=folium.Icon(color="blue",icon='mapmarker',angle=30),
+                          popup=folium.Popup(html=f"""
                                     <body>
                                     <div id="title">
                                         <h3>{result_df['name'][alias]}</h3>
@@ -132,6 +126,33 @@ if st.button('Surprise me!'):
         #display map
         folium_static(m)
 
+        #st.table(result_df[['nb_sentences', 'nb_review','metric sim_ratio','sentences_pond','metric_pond']])
+        st.markdown("""<h3>Accuracy score</h3> """, unsafe_allow_html=True)
+        metrics_df = result_df.sort_values('metric sim_ratio', ascending=False)
 
-        st.table(result_df[['nb_sentences', 'nb_review',
-                           'metric sim_ratio','sentences_pond','metric_pond']])
+
+        col1 = [x for x in range(5)]
+        col2 = [x for x in range(5)]
+        col1 = st.columns(5)
+        col2 = st.columns(5)
+        j =0
+        while j < min(5,nb):
+            for k in range(5):
+                if k <nb:
+                    col1[k].markdown(f"""<h5>{metrics_df['name'][j]}</h5>""",
+                                    unsafe_allow_html=True)
+                    col1[k].markdown(
+                        f"<h5 style='color:#3E3A8F'>{round(metrics_df['metric sim_ratio'][j] * 100, 1)}%</h5>",
+                        unsafe_allow_html=True)
+                    j+=1
+        st.write(j)
+        if 4<j<nb:
+            while j < min(10,nb):
+                for k in range(5):
+                    if k +5 <nb:
+                        col2[k].markdown(f"""<h5>{metrics_df['name'][j]}</h5>""",
+                                        unsafe_allow_html=True)
+                        col2[k].markdown(
+                            f"<h5 style='color:#3E3A8F'>{round(metrics_df['metric sim_ratio'][j] * 100, 1)}%</h5>",
+                            unsafe_allow_html=True)
+                    j+=1
