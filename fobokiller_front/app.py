@@ -19,8 +19,9 @@ df = pd.read_csv(path, index_col=0)
 
 
 #URL API
-url_details_base = 'https://api6-2rnijzpfva-ew.a.run.app/details?alias='
-url_api = 'https://api6-2rnijzpfva-ew.a.run.app/summary_reviews?'
+url_details_base = 'https://api8-2rnijzpfva-ew.a.run.app/details?alias='
+url_api_rate = 'https://api8-2rnijzpfva-ew.a.run.app/summary_reviews?'
+url_api = 'https://api8-2rnijzpfva-ew.a.run.app/summary_reviews2?'
 
 st.set_page_config(
         page_title="FOBO Kiler", # => Quick reference - Streamlit
@@ -67,14 +68,29 @@ if st.button('Surprise me!'):
         params={'text':query_food,
                 'n_best':nb,
                 'min_review':10}
+
+        #df de base + get aliases for second request
         result_reviews = requests.get(url_api, params=params).json()
         result_reviews_df = pd.DataFrame(result_reviews)
-        aliases = list(result_reviews_df['reviews'].keys())
+        aliases = list(result_reviews_df['review_clean'].keys())
+        #get the rate_filtered
+        rate = requests.get(url_api_rate, params=params).json()
+        df_rate = pd.DataFrame(rate)
+
+        #request second api
         url_details=url_details_base+'&alias='.join(aliases)
+
         details = requests.get(url_details + '&alias='.join(aliases)).json()
         details_df = pd.DataFrame(details)
         details_df.set_index('alias', inplace=True)
-        result_df = details_df.join(result_reviews_df)
+
+        #create big df
+        result_df = details_df.join(result_reviews_df).join(
+            df_rate['rate_filtered'])
+        st.write(result_df)#t drop
+
+
+
         for alias in result_df.index:
             folium.Marker(location=[
                 result_df['latitude'][alias], result_df['longitude'][alias]
@@ -94,7 +110,7 @@ if st.button('Surprise me!'):
                                         font-size: 20px;
                                         border-right:0px;
                                         text-align:left;
-                                        ">{result_df['rating'][alias]}/5</p>
+                                        ">{round(result_df['rate_filtered'][alias],1)}/5</p>
                                         <p
                                         style="
                                         font-size:15px;
@@ -127,22 +143,6 @@ if st.button('Surprise me!'):
         #st.table(result_df[['nb_sentences', 'nb_review','metric sim_ratio','sentences_pond','metric_pond']])
         metrics_df = result_df.sort_values('metric sim_ratio', ascending=False)
 
-        col1 = [x for x in range(5)]
-        col2 = [x for x in range(5)]
-        col1 = st.columns(5)
-        col2 = st.columns(5)
-        #j =0
-        #while j < min(5,nb):
-        #for k in range(5):
-        #   if k <nb:
-
-        #    j+=1
-        #if 4<j<nb:
-        #while j < min(10,nb):
-        #for k in range(5):
-        #if k +5 <nb:
-
-        # j+=1
         df_test = pd.DataFrame(
             [['Pizza-Vesuvio', 4.2, '1 rue Gozlin ', .32],
              ['Pizza Julia', 4, '43 rue de Charenton ', 0.2665],
@@ -166,9 +166,15 @@ if st.button('Surprise me!'):
         col1, col2 = st.columns(2)
         for i in range(nb):
             col1.markdown(
-                f"""<span style='font-size:30px;'> {df_test['name'][i]} </span>
-                <progress id="file" max="1" value="{df_test['metric_adjust'][i]}" style="margin-right:0px"></progress>
+                f"""<span style='font-size:30px;'> {result_df['name'][i]} </span>
+                <progress id="file" max="0.5" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px"></progress>
                 """,
                 unsafe_allow_html=True)
-            col2.markdown(
-            """'<span style='background-color:rgba(0,79.93747338652611,0,0.6)'> $$$ food but only at a $ price </span><span style=\'background-color:rgba(0,198.37338656187057,0,0.6)\'> will be coming here every time i\'m in paris from now on </span><span style=\'background-color:rgba(0,255.0,0,0.6)\'> mains are  </span><span style=\'background-color:rgba(0,160.61861246824265,0,0.6)\'>€ to € and our wine glasses were  </span><span style=\'background-color:rgba(0,155.39450079202652,0,0.6)\'>€ each (ranging up to or ) </span><span style=\'background-color:rgba(0,57.28849232196808,0,0.6)\'> the absolute fav so far this trip for value </span>'""",unsafe_allow_html=True)
+
+        for alias in aliases:
+            for i in range(10):
+                if len(result_df["reviews_heatmaps_html"][alias][i]) < 600:
+                    col2.markdown(f'{result_df["reviews_heatmaps_html"][alias][i]} <br/>',
+                                unsafe_allow_html=True)
+
+                    break
