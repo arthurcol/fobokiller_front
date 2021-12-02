@@ -1,23 +1,32 @@
-from io import UnsupportedOperation
-from logging import PlaceHolder
+#from io import UnsupportedOperation
+#from logging import PlaceHolder
 import pandas as pd
 import numpy as np
 import base64
 import streamlit as st
 import altair as alt
 import folium
-from branca.colormap import linear, LinearColormap
 import requests
-import time
 import os
 import folium
 from streamlit_folium import folium_static
 
-#importing csv file
-path = os.path.join(os.path.dirname(__file__), 'data/final_resto_list.csv')
-df = pd.read_csv(path, index_col=0)
-
-
+#import  csv
+lasagna_req = pd.read_csv("gs://fobokiller-722/data/lasagnas.csv",
+                          index_col=0).sort_values('metric sim_ratio',
+                                                   ascending=False)
+french_req = pd.read_csv("gs://fobokiller-722/data/french_food.csv",
+                         index_col=0).sort_values('metric sim_ratio',
+                                                  ascending=False)
+music_req = pd.read_csv("gs://fobokiller-722/data/music.csv",
+                        index_col=0).sort_values('metric sim_ratio',
+                                                 ascending=False)
+pizza_req = pd.read_csv("gs://fobokiller-722/data/pizza.csv",
+                        index_col=0).sort_values('metric sim_ratio',
+                                                 ascending=False)
+surprise_req = pd.read_csv("gs://fobokiller-722/data/Surprise_me!.csv",
+                           index_col=0).sort_values('metric sim_ratio',
+                                                    ascending=False)
 #URL API
 url_details_base = 'https://api9-2rnijzpfva-ew.a.run.app/details?alias='
 url_api_rate = 'https://api9-2rnijzpfva-ew.a.run.app/summary_reviews?'
@@ -41,10 +50,6 @@ m = folium.Map(location=[48.85584630805084, 2.3452032500919433],
                position='')
 
 st.markdown("""<br/><br/><br/>""", unsafe_allow_html=True)
-st.markdown("""<span style='background-color:rgba(200,147.70981073379517,0,1)'>i forgot this place was vegan until i got there </span>
-            <span style='background-color:rgba(200,203.74802505970001,0,1)'> that's what happens when you have a running list of restaurants to visit in paris </span>
-            <span style='background-color:rgba(200,255,0,1)'> but seriously, this place is sooo good </span>
-            <span style='background-color:rgba(200,110.4891774058342,0,1)'> order l'allume, potatoes wedges and pay an extra euro for a beer </span>""",unsafe_allow_html=True)
 
 st.markdown(
     """<p style="font-size:23px;margin-bottom:-100px">
@@ -101,18 +106,18 @@ if st.button('Surprise me!'):
     #create big df
     result_df = details_df.join(
         df_rate).sort_values('metric sim_ratio', ascending=False)
-
-    for alias in result_df.index:
-        folium.Marker(location=[
+    if query_food == 'I want to eat lasagnas without meat':
+        for alias in lasagna_req.index:
+            folium.Marker(location=[
             result_df['latitude'][alias], result_df['longitude'][alias]
-        ],
+            ],
                       icon=folium.Icon(color="blue",
                                        icon='mapmarker',
                                        angle=30),
                       popup=folium.Popup(html=f"""
                                     <body>
                                     <div id="title">
-                                        <h3>{result_df['name'][alias]}</h3>
+                                        <h3>{lasagna_req['name'][alias]}</h3>
                                     </div>
 
                                     <div id="col">
@@ -121,7 +126,160 @@ if st.button('Surprise me!'):
                                         font-size: 20px;
                                         border-right:0px;
                                         text-align:left;
-                                        ">{round(result_df['rate_filtered'][alias],1)}/5</p>
+                                        ">{round(lasagna_req['rate_filtered'][alias],1)}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+
+                                        "> {result_df['address'][alias]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+                                        }
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
+    if query_food == "I don't know what to eat but I feel like having something original. Surprise me!":
+
+        for alias in surprise_req.index:
+            folium.Marker(location=[
+            result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                      icon=folium.Icon(color="blue",
+                                       icon='mapmarker',
+                                       angle=30),
+                      popup=folium.Popup(html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{surprise_req['name'][alias]}</h3>
+                                    </div>
+
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        text-align:left;
+                                        ">{round(surprise_req['rate_filtered'][alias],1)}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+
+                                        "> {result_df['address'][alias]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+                                        }
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
+    if query_food == 'I would like a good pizza but I am allergic to gluten':
+        for alias in pizza_req.index:
+            folium.Marker(location=[
+            result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                      icon=folium.Icon(color="blue",
+                                       icon='mapmarker',
+                                       angle=30),
+                      popup=folium.Popup(html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{pizza_req['name'][alias]}</h3>
+                                    </div>
+
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        text-align:left;
+                                        ">{round(pizza_req['rate_filtered'][alias],1)}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+
+                                        "> {result_df['address'][alias]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+                                        }
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
+    if query_food == 'I am visiting paris and I want to eat good french food, in an authentic place but not with many people':
+        for alias in french_req.index:
+            folium.Marker(location=[
+            result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                      icon=folium.Icon(color="blue",
+                                       icon='mapmarker',
+                                       angle=30),
+                      popup=folium.Popup(html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{french_req['name'][alias]}</h3>
+                                    </div>
+
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        text-align:left;
+                                        ">{round(french_req['rate_filtered'][alias],1)}/5</p>
+                                        <p
+                                        style="
+                                        font-size:15px;
+                                        border-left:0px;
+
+                                        "> {result_df['address'][alias]}.</p>
+                                    </div>
+                                    </body>
+                                    """ + """
+                                    <style>
+                                    #title {
+                                        width=400px;
+                                        }
+                                    #col {
+                                    column-count: 2;
+                                    }
+                                    </style>""")).add_to(m)
+    if query_food == 'I want to eat a traditional french meal with music':
+        for alias in music_req.index:
+            folium.Marker(location=[
+            result_df['latitude'][alias], result_df['longitude'][alias]
+            ],
+                      icon=folium.Icon(color="blue",
+                                       icon='mapmarker',
+                                       angle=30),
+                      popup=folium.Popup(html=f"""
+                                    <body>
+                                    <div id="title">
+                                        <h3>{music_req['name'][alias]}</h3>
+                                    </div>
+
+                                    <div id="col">
+                                        <p style=
+                                        "color:#191970;
+                                        font-size: 20px;
+                                        border-right:0px;
+                                        text-align:left;
+                                        ">{round(music_req['rate_filtered'][alias],1)}/5</p>
                                         <p
                                         style="
                                         font-size:15px;
@@ -153,24 +311,71 @@ if st.button('Surprise me!'):
 
     #display maps and res
 
-    col= st.columns((2,1,2))
-    for i in range(nb):
-        col[1].markdown(
-            f"""<progress id="file" max="0.5" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
-            unsafe_allow_html=True)
-        with col[0]:
-            st.markdown(f"<h3>{result_df['name'][i]}</h3><br/>", unsafe_allow_html=True)
 
+    col = st.columns((2, 1, 2))
+    for i in range(nb):
+        if query_food == 'I want to eat lasagnas without meat':
+            direction = st.radio('Restaurant', (lasagna_req.index))
+            with col[0]:
+                if direction == lasagna_req.index[i]:
+                    st.markdown(f"""{lasagna_req["reviews_heatmaps_html"][i]}""",
+                    unsafe_allow_html=True)
+            col[1].markdown(
+            f"""<progress id="file" max="0.5" value="{lasagna_req['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+            unsafe_allow_html=True)
+
+
+        if query_food == "I don't know what to eat but I feel like having something original. Surprise me!":
+            with col[0]:
+                direction = st.radio('Restaurant', (surprise_req.index))
+                if direction == surprise_req.index[i]:
+
+                    st.markdown(f"""{surprise_req["reviews_heatmaps_html"][i]}""",
+                    unsafe_allow_html=True)
+            col[1].markdown(
+                f"""<progress id="file" max="0.5" value="{surprise_req['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+                unsafe_allow_html=True)
+
+
+        if query_food == 'I want to eat a traditional french meal with music':
+            direction = st.radio('Restaurant', (music_req.index))
+            with col[0]:
+                if direction == music_req.index[i]:
+                    st.markdown(f"""{music_req["reviews_heatmaps_html"][i]}""",
+                    unsafe_allow_html=True)
+            col[1].markdown(
+                f"""<progress id="file" max="0.5" value="{music_req['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+                unsafe_allow_html=True)
+
+
+        if query_food == 'I am visiting paris and I want to eat good french food, in an authentic place but not with many people':
+            with col[0]:
+                direction = st.radio('Restaurant', (french_req.index))
+                if direction == french_req.index[i]:
+                    st.markdown(
+                        f"""{french_req["reviews_heatmaps_html"][i]}""",
+                        unsafe_allow_html=True)
+            col[1].markdown(
+                f"""<progress id="file" max="0.5" value="{french_req['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+                unsafe_allow_html=True)
+
+
+        if query_food == 'I would like a good pizza but I am allergic to gluten':
+            with col[0]:
+                direction = st.radio('Restaurant', (pizza_req.index))
+                if direction == pizza_req.index[i]:
+                    st.markdown(f"""{pizza_req["reviews_heatmaps_html"][i]}""",
+                    unsafe_allow_html=True)
+            col[1].markdown(
+            f"""<progress id="file" max="0.5" value="{pizza_req['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+            unsafe_allow_html=True)
 
     with col[2]:
         folium_static(m, width=700, height=400)
+
+
+
     st.markdown("<br/><br/>", unsafe_allow_html=True)
     st.markdown(f"""<h3 style="text-align:center;
                         font-family:Baskerville, Baskerville Old Face, Garamond, Times New Roman, sans-serif">
                         Why you have to go !!!</h3><br/> """, unsafe_allow_html=True)
-
-    st.markdown("""
-                    "<span style='background-color:rgba(200,147.70981073379517,0,1)'>i forgot this place was vegan until i got there </span><span style='background-color:rgba(200,203.74802505970001,0,1)'> that's what happens when you have a running list of restaurants to visit in paris </span><span style='background-color:rgba(200,255,0,1)'> but seriously, this place is sooo good </span><span style='background-color:rgba(200,110.4891774058342,0,1)'> order l'allume, potatoes wedges and pay an extra euro for a beer </span>"<span style='background-color:rgba(200,109.5431873500347,0,1)'>i pretty much walked across paris to get to this spot and it was well worth the trek </span><span style='background-color:rgba(200,230.771965622901917,0,1)'> the place is quaint but cute </span><span style='background-color:rgba(200,245.490173161029816,0,1)'> i had the veggie burger with bar-b-que sauce on it, i don't quite remember it's name on the menu </span><span style='background-color:rgba(200,243.81418925523758,0,1)'> i ordered the meal the frites and a drink </span><span style='background-color:rgba(200,178.94982290267944,0,1)'> the burger was so fresh </span><span style='background-color:rgba(200,190.77875679731369,0,1)'> every bite was tasty and flavorful </span><span style='background-color:rgba(200,186.96417135000229,0,1)'> the frites where quite testy as well </span><span style='background-color:rgba(200,1614398378133774,0,1)'> i loved the upstairs sitting area </span><span style='background-color:rgba(200,255,0,1)'> it's cozy and comfy </span><span style='background-color:rgba(200,234.59012246131897,0,1)'> i was thankful for the wifi </span><span style='background-color:rgba(200,190.29720097780228,0,1)'> i'll definitely be back to hank on my next visit to paris veggie burgers in paris </span>"<br/>
-                    "<span style='background-color:rgba(200,78.40744164586067,0,1)'>vegan burgers </span><span style='background-color:rgba(200,107.78531029820442,0,1)'> i've been strangely on a burger craving since in paris and spotted this on yelp with great reviews </span><span style='background-color:rgba(200,186.7808541059494,0,1)'> did not disappoint </span><span style='background-color:rgba(200,145.00488758087158,0,1)'> friendly service with english menu </span><span style='background-color:rgba(200,144.35372400283813,0,1)'> both hubs and i ordered the le grand menu with burger friesdessertdrink for euros </span><span style='background-color:rgba(200,140.71467417478561,0,1)'> deal </span><span style='background-color:rgba(200,42.6874584108591,0,1)'> i had the fig sauce, hubs had the tomatoe sauce, we both loved our burgers </span><span style='background-color:rgba(200,152.06384563446045,0,1)'> moist, flavorful and filling </span><span style='background-color:rgba(200,128.28458195924759,0,1)'> like everyone else said, potatoe wedges were awesome </span><span style='background-color:rgba(200,146.35313135385513,0,1)'> i loved my carrot cake and hubs enjoyed his choc chip cookie </span><span style='background-color:rgba(200,144.0462749004364,0,1)'> cute quaint upstairs and food was ready quickly </span><span style='background-color:rgba(200,255,0,1)'> getting quite the vegan burger fix in paris, i'm sure i'm going to go through withdrawals </span><span style='background-color:rgba(200,167.557668030262,0,1)'> le grand menu </span><span style='background-color:rgba(200,95.993834733963,0,1)'> burger, potatoe wedges and carrot cake </span>"<br/>
-                    "<span style='background-color:rgba(200,170.89054554700851,0,1)'>literally best burgers ever </span><span style='background-color:rgba(200,255,0,1)'> quick service but no fast food atmosphere </span><span style='background-color:rgba(200,210.34319490194321,0,1)'> on the side the fried potatoes were tasty, not to mention the vegannaise was a true cherry on top </span><br/>" """,
-                unsafe_allow_html=True)
