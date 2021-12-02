@@ -143,25 +143,18 @@ if st.button('Surprise me!'):
     st.markdown("<br/>", unsafe_allow_html=True)
 
     #display maps and res
-
+    list_restau = result_df.index
+    direction = st.radio('Restaurant', (result_df.index))
     col= st.columns((2,1,2))
     for i in range(nb):
         col[1].markdown(
             f"""<progress id="file" max="0.5" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
             unsafe_allow_html=True)
         with col[0]:
-            st.markdown(f"<h3>{result_df['name'][i]}</h3><br/>", unsafe_allow_html=True)
+            if direction == result_df.index[i]:
+                st.markdown(f"""{result_df["reviews_heatmaps_html"][i]}""",
+                                unsafe_allow_html=True)
 
 
     with col[2]:
         folium_static(m, width=700, height=400)
-
-
-    list_restau = result_df.index
-    direction = st.radio('Restaurant', (result_df.index))
-
-
-    for i in range(nb):
-        if direction == result_df.index[i]:
-            st.markdown(f"""{result_df["reviews_heatmaps_html"][i]}""",
-                        unsafe_allow_html=True)
