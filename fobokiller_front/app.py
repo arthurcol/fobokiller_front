@@ -144,7 +144,7 @@ if st.button('Surprise me!'):
                 st.markdown(f"<h3>{result_df['name'][i]}</h3>",
                             unsafe_allow_html=True)
             col[1].markdown(
-                f"""<meter id="file" max="0.45" low=".28" optimum=".36" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:20px; margin: .8em"></meter>""",
+                f"""<meter id="file" max="0.42" low=".22" optimum=".35" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:20px; margin: .8em"></meter>""",
                 unsafe_allow_html=True)
 
             #if direction == result_df.index[i]:
