@@ -12,9 +12,9 @@ import folium
 from streamlit_folium import folium_static
 
 #URL API
-url_details_base = 'https://api9-2rnijzpfva-ew.a.run.app/details?alias='
-url_api_rate = 'https://api9-2rnijzpfva-ew.a.run.app/summary_reviews?'
-url_api = 'https://api9-2rnijzpfva-ew.a.run.app/summary_reviews2?'
+url_details_base = 'https://api10-2rnijzpfva-ew.a.run.app/details?alias='
+url_api_rate = 'https://api10-2rnijzpfva-ew.a.run.app/summary_reviews?'
+url_api = 'https://api10-2rnijzpfva-ew.a.run.app/summary_reviews2?'
 
 
 st.set_page_config(
@@ -144,7 +144,7 @@ if st.button('Surprise me!'):
                 st.markdown(f"<h3>{result_df['name'][i]}</h3>",
                             unsafe_allow_html=True)
             col[1].markdown(
-                f"""<meter id="file" max="0.45" low=".3" optimum=".38" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:20px; margin: .8em"></meter>""",
+                f"""<meter id="file" max="0.45" low=".28" optimum=".36" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:20px; margin: .8em"></meter>""",
                 unsafe_allow_html=True)
 
             #if direction == result_df.index[i]:
