@@ -6,17 +6,10 @@ import base64
 import streamlit as st
 import altair as alt
 import folium
-from branca.colormap import linear, LinearColormap
 import requests
-import time
 import os
 import folium
 from streamlit_folium import folium_static
-
-#importing csv file
-path = os.path.join(os.path.dirname(__file__), 'data/final_resto_list.csv')
-df = pd.read_csv(path, index_col=0)
-
 
 #URL API
 url_details_base = 'https://api9-2rnijzpfva-ew.a.run.app/details?alias='
@@ -38,8 +31,6 @@ st.markdown(
 m = folium.Map(location=[48.85584630805084, 2.3452032500919433],
                zoom_start=12,
                position='')
-
-
 
 st.markdown(
     """<p style="font-size:23px;margin-bottom:-100px;">
@@ -129,6 +120,7 @@ if st.button('Surprise me!'):
                                             }
                                         #col {
                                         column-count: 2;
+
                                         }
                                         </style>""")).add_to(m)
 
@@ -160,6 +152,7 @@ if st.button('Surprise me!'):
             with st.expander(result_df['name'][i]):
                 review_col = list(set(result_df["reviews_heatmaps_html"][i]))
 
+
                 sentence_heat ='\n - ' + '\n \n - '.join(review_col[:5])
                 st.markdown(f"""<br/><br/>{sentence_heat}""", unsafe_allow_html=True)
 
@@ -167,3 +160,4 @@ if st.button('Surprise me!'):
 
         with col[2]:
             folium_static(m, width=600, height=400)
+
