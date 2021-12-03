@@ -141,13 +141,14 @@ if st.button('Surprise me!'):
         col= st.columns((1,1,2))
         for i in range(nb):
             col[1].markdown(
-                f"""<progress id="file" max="0.5" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
+                f"""<meter id="file" max="0.5" low=".25" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:25px;"></meter><br/><br/><br/>""",
                 unsafe_allow_html=True)
             with col[0]:
                 st.markdown(f"<h3>{result_df['name'][i]}</h3><br/>", unsafe_allow_html=True)
             #if direction == result_df.index[i]:
 
-        st.markdown("<h2 style='text-align:center;'> Why you have to go!!!<h2/>", unsafe_allow_html=True)
+        st.markdown("""<h2 style='text-align:center text-align:center;
+                        font-family:Baskerville, Baskerville Old Face, Garamond, Times New Roman, sans-serif"'> Why you have to go!!!<h2/>""", unsafe_allow_html=True)
         for i in range(nb):
             with st.expander(result_df['name'][i]):
                 review_col = list(set(result_df["reviews_heatmaps_html"][i]))
@@ -160,4 +161,3 @@ if st.button('Surprise me!'):
 
         with col[2]:
             folium_static(m, width=600, height=400)
-
