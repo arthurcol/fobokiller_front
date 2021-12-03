@@ -131,23 +131,25 @@ if st.button('Surprise me!'):
 
         st.markdown("""<h3 style="text-align:center;
                         font-family:Baskerville, Baskerville Old Face, Garamond, Times New Roman, sans-serif">
-                        Where you can enjoy your meal ! 🤤 </h3> """,
+                        Where you can enjoy your meal ! 🤤 </h3><br/> """,
                     unsafe_allow_html=True)
-        st.markdown("<br/>", unsafe_allow_html=True)
+
 
         #display maps and res
         #list_restau = result_df.index
         #direction = st.radio('Restaurant', (result_df.index))
         col= st.columns((1,1,2))
         for i in range(nb):
-            col[1].markdown(
-                f"""<meter id="file" max="0.5" low=".25" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:25px;"></meter><br/><br/><br/>""",
-                unsafe_allow_html=True)
             with col[0]:
-                st.markdown(f"<h3>{result_df['name'][i]}</h3><br/>", unsafe_allow_html=True)
+                st.markdown(f"<h3>{result_df['name'][i]}</h3>",
+                            unsafe_allow_html=True)
+            col[1].markdown(
+                f"""<meter id="file" max="0.4" low=".28" optimum=".38" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px; width:170px; height:20px; margin: .8em"></meter>""",
+                unsafe_allow_html=True)
+
             #if direction == result_df.index[i]:
 
-        st.markdown("""<h2 style='text-align:center text-align:center;
+        st.markdown("""<h2 style='text-align:center;
                         font-family:Baskerville, Baskerville Old Face, Garamond, Times New Roman, sans-serif"'> Why you have to go!!!<h2/>""", unsafe_allow_html=True)
         for i in range(nb):
             with st.expander(result_df['name'][i]):
