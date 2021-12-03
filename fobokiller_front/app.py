@@ -112,7 +112,7 @@ if st.button('Surprise me!'):
                                         font-size: 20px;
                                         border-right:0px;
                                         text-align:left;
-                                        ">{round(result_df['rate_filtered'][alias],1)}/5</p>
+                                        ">{round(result_df['rate_filtered_y'][alias],1)}/5</p>
                                         <p
                                         style="
                                         font-size:15px;
@@ -145,16 +145,18 @@ if st.button('Surprise me!'):
     #display maps and res
     list_restau = result_df.index
     direction = st.radio('Restaurant', (result_df.index))
-    col= st.columns((2,1,2))
+    col= st.columns((1,1,2))
     for i in range(nb):
         col[1].markdown(
             f"""<progress id="file" max="0.5" value="{result_df['metric sim_ratio'][i]}" style="margin-right:0px"></progress><br/><br/><br/>""",
             unsafe_allow_html=True)
         with col[0]:
-            if direction == result_df.index[i]:
-                st.markdown(f"""{result_df["reviews_heatmaps_html"][i]}""",
-                                unsafe_allow_html=True)
+            st.markdown(f"<h3>{list_restau[i]}</h3>", unsafe_allow_html=True)
+        #if direction == result_df.index[i]:
+        sentence_heat = '\n'.join(result_df["reviews_heatmaps_html"][i])
+        st.markdown(f"""{sentence_heat}""", unsafe_allow_html=True)
+
 
 
     with col[2]:
-        folium_static(m, width=700, height=400)
+        folium_static(m, width=600, height=400)
