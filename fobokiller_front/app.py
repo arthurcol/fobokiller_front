@@ -42,7 +42,7 @@ st.markdown("""<br/><br/>""", unsafe_allow_html=True)
 st.markdown(
     '<p style="font-size:23px;margin-bottom:-10px;">How <big>FOBO</big>ic are you ?</p>',
     unsafe_allow_html=True)
-nb = 12 - st.slider('', 10, 2)
+nb = 12 - st.slider('', 10, 2, value = 5)
 st.markdown("""<body>
             <div id="col">
                 <p style="font-size:18px;">BIG TIME 😰</p>
